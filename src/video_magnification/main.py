@@ -1,5 +1,3 @@
-from datetime import datetime
-from time import time
 import cv2
 import numpy as np
 from scipy.fft import fft, fftfreq, ifft
@@ -11,7 +9,7 @@ from scipy.signal import find_peaks
 cap = cv2.VideoCapture("resources/face_10s_83bpm.mp4")
 
 # Check if camera opened successfully
-if cap.isOpened() == False:
+if cap.isOpened() is False:
     print("Error opening video stream or file")
 
 # Read until video is completed
@@ -19,7 +17,7 @@ frame_buffer = None
 while cap.isOpened():
     # Capture frame-by-frame
     ret, frame = cap.read()
-    if ret == True:
+    if ret is True:
         rows, cols, _channels = map(int, frame.shape)
 
         scaled_down = frame
