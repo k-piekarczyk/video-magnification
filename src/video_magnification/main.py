@@ -3,12 +3,17 @@ import numpy as np
 from scipy.fft import fft, fftfreq, ifft
 from matplotlib import pyplot as plt
 from scipy.signal import find_peaks
+import sys
+import os.path
 
+def main(filepath: str):
+    abs_filepath = os.path.abspath(filepath)
+    if not os.path.isfile(abs_filepath):
+        raise Exception("Provided filepath should be to a movie")
 
-def main():
     # Create a VideoCapture object and read from input file
     # If the input is the camera, pass 0 instead of the video file name
-    cap = cv2.VideoCapture("../../resources/face_10s_83bpm.mp4")
+    cap = cv2.VideoCapture(abs_filepath)
 
     # Check if camera opened successfully
     if cap.isOpened() is False:
@@ -118,4 +123,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1])
