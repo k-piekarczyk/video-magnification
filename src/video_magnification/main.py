@@ -93,15 +93,15 @@ def main(filepath: str):
     figure, axis = plt.subplots(4)
 
     axis[0].plot(b_channel, "b-")
-    axis[1].stem(xf, np.abs(limited_b_yf), "b")
+    axis[1].stem(xf, np.abs(limited_b_yf), linefmt="b")
     axis[2].plot(np.real(ifft_b) * 255, "b-")
 
     axis[0].plot(range(N), g_channel, "g-")
-    axis[1].stem(xf, np.abs(limited_g_yf), "g")
+    axis[1].stem(xf, np.abs(limited_g_yf), linefmt="g")
     axis[2].plot(np.real(ifft_g) * 255, "g-")
 
     axis[0].plot(range(N), r_channel, "r-")
-    axis[1].stem(xf, np.abs(limited_r_yf), "r")
+    axis[1].stem(xf, np.abs(limited_r_yf), linefmt="r")
     axis[2].plot(np.real(ifft_r) * 255, "r-")
 
     b_r_diff = np.real(ifft_g) - np.real(ifft_r)
