@@ -9,7 +9,7 @@ import os.path
 def main(filepath: str):
     abs_filepath = os.path.abspath(filepath)
     if not os.path.isfile(abs_filepath):
-        raise Exception("Provided filepath should be to a movie")
+        raise Exception(f"Provided filepath {abs_filepath} is not a video file")
 
     # Create a VideoCapture object and read from input file
     # If the input is the camera, pass 0 instead of the video file name
