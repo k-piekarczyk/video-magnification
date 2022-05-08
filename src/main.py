@@ -1,18 +1,13 @@
 import cv2
 import numpy as np
-from scipy.fft import fft, fftfreq, ifft
-from matplotlib import pyplot as plt
-from scipy.signal import find_peaks
 import sys
 import os.path
-
-from typing import Optional
-import numpy.typing as npt
 
 from video_magnification.processing import process_chunk
 
 SCALE_FACTOR = 6
 MAGNIFICATION_FACTOR = 50
+
 
 def main(filepath: str):
     abs_filepath = os.path.abspath(filepath)
