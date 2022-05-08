@@ -6,6 +6,9 @@ from scipy.signal import find_peaks
 import sys
 import os.path
 
+from typing import Optional
+import numpy.typing as npt
+
 from video_magnification.processing import process_chunk
 
 SCALE_FACTOR = 6
@@ -30,8 +33,6 @@ def main(filepath: str):
         # Capture frame-by-frame
         ret, frame = cap.read()
         if ret is True:
-            rows, cols, _channels = map(int, frame.shape)
-
             scaled_down = frame
 
             for i in range(SCALE_FACTOR):
@@ -42,14 +43,6 @@ def main(filepath: str):
                 frame_buffer = np.ndarray((0, x, y, p))
 
             frame_buffer = np.append(frame_buffer, scaled_down[np.newaxis, ...], 0)
-            # print(frame_buffer.shape)
-
-            # cv2.imshow('Frame', frame)
-            # cv2.imshow('Scaled Down', scaled_down)
-
-            # # Press Q on keyboard to  exit
-            # if cv2.waitKey(25) & 0xFF == ord('q'):
-            #     break
 
         # Break the loop
         else:
@@ -63,10 +56,16 @@ def main(filepath: str):
 
     N, h, w, _channels = frame_buffer.shape
 
-    for x, y in np.ndindex((h, w)):
+    chunk_sum = 0.0
+    chunk_count = 0
+    for x, y in np.ndindex(h, w):
         chunk = frame_buffer[:, x, y, :]
-        process_chunk(chunk, MAGNIFICATION_FACTOR, N)
+        chunk_value = process_chunk(chunk, MAGNIFICATION_FACTOR, N)
 
+        chunk_sum = chunk_sum + chunk_value
+        chunk_count = chunk_count + 1
+
+    print(f"Average BPM measured: {chunk_sum/chunk_count}")
 
 if __name__ == "__main__":
     main(sys.argv[1])

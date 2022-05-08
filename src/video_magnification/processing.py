@@ -7,7 +7,7 @@ import sys
 import os.path
 
 
-def process_chunk(chunk, magnification_factor: int, N):
+def process_chunk(chunk, magnification_factor: int, N) -> float:
 
     b_channel = chunk[:, 0]
     g_channel = chunk[:, 1]
@@ -23,7 +23,7 @@ def process_chunk(chunk, magnification_factor: int, N):
 
     xf = fftfreq(N, 1 / 30)
 
-    idx = (xf > 1) * (xf < 2)
+    idx = (xf >= 1) * (xf <= 2)
 
     limited_b_yf = [val if det else 0 for val, det in zip(b_yf, idx)]
     limited_g_yf = [val if det else 0 for val, det in zip(g_yf, idx)]
@@ -37,33 +37,13 @@ def process_chunk(chunk, magnification_factor: int, N):
     real_ifft_g = np.real(ifft_g) * 256 * magnification_factor
     real_ifft_r = np.real(ifft_r) * 256 * magnification_factor
 
-    # figure, axis = plt.subplots(4)
-    #
-    # axis[0].plot(b_channel, "b-")
-    # axis[1].stem(xf, np.abs(limited_b_yf), linefmt="b")
-    # axis[2].plot(real_ifft_b, "b-")
-    #
-    # axis[0].plot(range(N), g_channel, "g-")
-    # axis[1].stem(xf, np.abs(limited_g_yf), linefmt="g")
-    # axis[2].plot(real_ifft_g, "g-")
-    #
-    # axis[0].plot(range(N), r_channel, "r-")
-    # axis[1].stem(xf, np.abs(limited_r_yf), linefmt="r")
-    # axis[2].plot(real_ifft_r, "r-")
+    b_r_diff = real_ifft_b - real_ifft_r
 
-    b_r_diff = np.real(ifft_g) - np.real(ifft_r)
-    #
-    # axis[3].plot(b_r_diff)
-    #
     peaks, _ = find_peaks(b_r_diff, height=0)
-    #
-    # axis[3].plot(peaks, b_r_diff[peaks], "x")
 
     wave_length_fr = np.average(np.diff(peaks))
     wave_length_s = wave_length_fr / 30
 
-    hr = 1 / wave_length_s
+    bpm = (1 / wave_length_s) * 60
 
-    print(f"Heart rate: {hr * 60} BPM")
-
-    plt.show()
+    return bpm
