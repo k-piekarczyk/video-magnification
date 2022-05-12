@@ -1,13 +1,8 @@
-import cv2
 import numpy as np
 from scipy.fft import fft, fftfreq, ifft
-from matplotlib import pyplot as plt
-from scipy.signal import find_peaks
-import sys
-import os.path
 
 
-def process_chunk(chunk, magnification_factor: int, N) -> float:
+def process_chunk(chunk, magnification_factor: int, N) -> np.ndarray:
 
     b_channel = chunk[:, 0]
     g_channel = chunk[:, 1]
@@ -33,17 +28,24 @@ def process_chunk(chunk, magnification_factor: int, N) -> float:
     ifft_g = ifft(limited_g_yf)
     ifft_r = ifft(limited_r_yf)
 
-    real_ifft_b = np.real(ifft_b) * 256 * magnification_factor
-    real_ifft_g = np.real(ifft_g) * 256 * magnification_factor
-    real_ifft_r = np.real(ifft_r) * 256 * magnification_factor
+    real_ifft_b = np.real(ifft_b) * 256 #* magnification_factor
+    real_ifft_g = np.real(ifft_g) * 256 #* magnification_factor
+    real_ifft_r = np.real(ifft_r) * 256 #* magnification_factor
 
-    b_r_diff = real_ifft_b - real_ifft_r
+    # print(type(real_ifft_g), real_ifft_g.shape)
+    #
+    # b_r_diff = real_ifft_b - real_ifft_r
+    #
+    # peaks, _ = find_peaks(b_r_diff, height=0)
+    #
+    # wave_length_fr = np.average(np.diff(peaks))
+    # wave_length_s = wave_length_fr / 30
+    #
+    # bpm = (1 / wave_length_s) * 60
 
-    peaks, _ = find_peaks(b_r_diff, height=0)
+    processed_chunk = np.ndarray(shape=(real_ifft_g.shape[0], 3))
+    processed_chunk[:, 0] = real_ifft_b
+    processed_chunk[:, 1] = real_ifft_g
+    processed_chunk[:, 2] = real_ifft_r
 
-    wave_length_fr = np.average(np.diff(peaks))
-    wave_length_s = wave_length_fr / 30
-
-    bpm = (1 / wave_length_s) * 60
-
-    return bpm
+    return processed_chunk

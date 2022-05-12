@@ -5,7 +5,7 @@ import os.path
 
 from video_magnification.processing import process_chunk
 
-SCALE_FACTOR = 6
+SCALE_FACTOR = 3
 MAGNIFICATION_FACTOR = 50
 
 
@@ -51,16 +51,31 @@ def main(filepath: str):
 
     N, h, w, _channels = frame_buffer.shape
 
-    chunk_sum = 0.0
-    chunk_count = 0
+    processed_frame_buffer = np.ndarray((N, h, w, _channels))
     for x, y in np.ndindex(h, w):
         chunk = frame_buffer[:, x, y, :]
-        chunk_value = process_chunk(chunk, MAGNIFICATION_FACTOR, N)
+        processed_chunk = process_chunk(chunk, MAGNIFICATION_FACTOR, N)
+        processed_frame_buffer[:, x, y, :] = processed_chunk
 
-        chunk_sum = chunk_sum + chunk_value
-        chunk_count = chunk_count + 1
+    cap = cv2.VideoCapture(abs_filepath)
+    frame_count = 0
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if ret:
 
-    print(f"Average BPM measured: {chunk_sum/chunk_count}")
+            scaled_up = processed_frame_buffer[frame_count]
+
+            for i in range(SCALE_FACTOR):
+                scaled_up = cv2.pyrUp(scaled_up)
+
+            cv2.imshow('Original', frame)
+            cv2.imshow('Redone', scaled_up)
+
+            frame_count = frame_count + 1
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            break
 
 if __name__ == "__main__":
     main(sys.argv[1])
