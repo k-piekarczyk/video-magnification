@@ -9,7 +9,8 @@ SCALE_FACTOR = 3
 MAGNIFICATION_FACTOR = 50
 
 
-def main(filepath: str):
+def main():
+    filepath = sys.argv[1]
     abs_filepath = os.path.abspath(filepath)
     if not os.path.isfile(abs_filepath):
         raise Exception(f"Provided filepath {abs_filepath} is not a video file")
@@ -68,14 +69,15 @@ def main(filepath: str):
             for i in range(SCALE_FACTOR):
                 scaled_up = cv2.pyrUp(scaled_up)
 
-            cv2.imshow('Original', frame)
-            cv2.imshow('Redone', scaled_up)
+            cv2.imshow("Original", frame)
+            cv2.imshow("Redone", scaled_up)
 
             frame_count = frame_count + 1
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
         else:
             break
 
+
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main()

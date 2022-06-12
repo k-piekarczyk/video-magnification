@@ -28,9 +28,9 @@ def process_chunk(chunk, magnification_factor: int, N) -> np.ndarray:
     ifft_g = ifft(limited_g_yf)
     ifft_r = ifft(limited_r_yf)
 
-    real_ifft_b = np.real(ifft_b) * 256 #* magnification_factor
-    real_ifft_g = np.real(ifft_g) * 256 #* magnification_factor
-    real_ifft_r = np.real(ifft_r) * 256 #* magnification_factor
+    real_ifft_b = np.real(ifft_b) * 256  # * magnification_factor
+    real_ifft_g = np.real(ifft_g) * 256  # * magnification_factor
+    real_ifft_r = np.real(ifft_r) * 256  # * magnification_factor
 
     # print(type(real_ifft_g), real_ifft_g.shape)
     #
