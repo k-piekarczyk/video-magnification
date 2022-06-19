@@ -5,7 +5,8 @@ import numpy.typing as npt
 import numpy as np
 
 from video_magnification.processing import process_frame_buffer
-from video_magnification.utils.video import VideoFileReader, scale_frame_up, laplace_pyramid_step
+from video_magnification.utils.video import VideoFileReader, scale_frame_up, laplace_pyramid_step, prepare_for_laplace_pyramid
+from video_magnification.utils.math import closest_power_of_2
 
 SCALE_FACTOR = 3
 MAGNIFICATION_FACTOR = 4
@@ -44,23 +45,52 @@ def processed_run():
 def laplace():
     filepath = sys.argv[1]
 
-    vf_reader = VideoFileReader(filepath=filepath)
-
     cap = VideoFileReader(filepath=filepath).get_cap()
 
-    _, frame = cap.read()
-    frame: npt.NDArray[np.uint8]  # just here for type annotation
+    while True:
+        stop = False
+        cap = VideoFileReader(filepath=filepath).get_cap()
+
+        while cap.isOpened():
+            ret, raw_frame = cap.read()
+            raw_frame: npt.NDArray[np.uint8]  # just here for type annotation
+
+            if ret:
+                original_shape = raw_frame.shape
+
+                frame = prepare_for_laplace_pyramid(frame=raw_frame)
+
+                cv2.imshow("Original", frame)
+
+                s, d = laplace_pyramid_step(frame=frame)
+                scaled = [s]
+                diff = [d]
+
+                DEPTH = 6
+                for i in range(1, DEPTH):
+                    s, d = laplace_pyramid_step(frame=scaled[i-1])
+                    scaled.append(s)
+                    diff.append(d)
+
+                for i in range(DEPTH):
+                    cv2.imshow(f"Scaled: {i+1}", scaled[i])
+                    if (scaled[i].shape[1] < 300):
+                        cv2.resizeWindow(f"Scaled: {i+1}", 300, scaled[i].shape[0])
+
+                    cv2.imshow(f"Diff: {i+1}", diff[i])
+                    if (diff[i].shape[1] < 300):
+                        cv2.resizeWindow(f"Diff: {i+1}", 300, diff[i].shape[0])
+            
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    stop = True
+                    break
+            else:
+                break
+        if stop:
+            cv2.destroyAllWindows()
+            break
     
-    scaled, diff = laplace_pyramid_step(frame=frame)
-
-    cv2.imshow("Original", frame)
-    cv2.imshow("Scaled", scaled)
-    cv2.imshow("Diff", diff)
-
-
-    cv2.waitKey(0)
-    
-
+    cv2.destroyAllWindows()
 
 
 def main():

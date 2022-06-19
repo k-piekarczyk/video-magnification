@@ -3,8 +3,10 @@ import numpy as np
 import numpy.typing as npt
 from typing import Tuple
 
+from ..math.powers import closest_power_of_2
 
-__all__ = ["scale_frame_down", "scale_frame_up", "laplace_pyramid_step"]
+
+__all__ = ["scale_frame_down", "scale_frame_up", "laplace_pyramid_step", "prepare_for_laplace_pyramid"]
 
 
 def scale_frame_down(frame, scaling_factor: int):
@@ -26,11 +28,34 @@ def scale_frame_up(frame, scaling_factor: int):
 
     return frame
 
+def prepare_for_laplace_pyramid(frame: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
+    """
+    Prepares a frame in each side has a length of a power of two 
+    """
+    height, width, channels = frame.shape
+
+    adjusted_height = closest_power_of_2(height)
+    adjusted_width = closest_power_of_2(width)
+
+    adjusted_shape = (adjusted_height, adjusted_width, channels)
+
+    adjusted_frame = np.ndarray(shape=adjusted_shape, dtype=np.uint8)
+
+    adjusted_frame[:height, :width] = frame
+
+    adjusted_frame[height:, :width] = frame[height-1:, :]
+    adjusted_frame[:height, width:] = frame[:, width-1:]
+    adjusted_frame[height:, width:] = frame[height-1:, width-1:]
+
+    return adjusted_frame
+
+
+
+
 def laplace_pyramid_step(frame: npt.NDArray[np.uint8]) -> Tuple[npt.NDArray[np.uint8], npt.NDArray[np.uint8]]:
     """
     Scales the given frame down and returns the scaleddown frame and it's diff from original
     """
-
     scaled_down = cv2.pyrDown(frame)
     expanded = cv2.pyrUp(scaled_down)
 
