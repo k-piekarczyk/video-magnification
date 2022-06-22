@@ -1,11 +1,12 @@
 import numpy as np
+import numpy.typing as npt
 from scipy.fft import fft, fftfreq, ifft
 
 
-def process_frame_buffer(frame_buffer, magnification_factor: int = 1):
+def process_frame_buffer(frame_buffer: npt.NDArray[np.uint8], magnification_factor: int = 1):
     N, h, w, _channels = frame_buffer.shape
 
-    processed_frame_buffer = np.ndarray((N, h, w, _channels))
+    processed_frame_buffer: npt.NDArray[np.uint8] = np.ndarray((N, h, w, _channels))
     for x, y in np.ndindex(h, w):
         chunk = frame_buffer[:, x, y, :]
         processed_chunk = process_chunk(chunk=chunk, magnification_factor=magnification_factor, N=N)
@@ -14,7 +15,7 @@ def process_frame_buffer(frame_buffer, magnification_factor: int = 1):
     return processed_frame_buffer
 
 
-def process_chunk(chunk, magnification_factor: int, N) -> np.ndarray:
+def process_chunk(chunk, magnification_factor: int, N) -> npt.NDArray:
 
     xf = fftfreq(N, 1 / 30)
     idx = (xf >= 1) * (xf <= 2)
@@ -54,7 +55,7 @@ def process_chunk(chunk, magnification_factor: int, N) -> np.ndarray:
     #
     # bpm = (1 / wave_length_s) * 60
 
-    processed_chunk = np.ndarray(shape=(real_ifft_g.shape[0], 3))
+    processed_chunk = np.ndarray(shape=(real_ifft_g.shape[0], 3)).astype(np.uint8)
     processed_chunk[:, 0] = real_ifft_b
     processed_chunk[:, 1] = real_ifft_g
     processed_chunk[:, 2] = real_ifft_r

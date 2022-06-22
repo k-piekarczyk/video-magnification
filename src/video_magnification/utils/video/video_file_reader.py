@@ -1,6 +1,8 @@
 import os
 import cv2
 import numpy as np
+import numpy.typing as npt
+from typing import Optional
 
 from .exceptions import VideoNotOpeningException, NotAVideoFileException, ClosedVideoFileReaderException
 from .manipulation import scale_frame_down
@@ -50,7 +52,7 @@ class VideoFileReader:
         if not self.open:
             raise ClosedVideoFileReaderException()
 
-        frame_buffer = None
+        frame_buffer: Optional[npt.NDArray[np.uint8]] = None
         while self.cap.isOpened():
             # Capture frame-by-frame
             ret, frame = self.cap.read()

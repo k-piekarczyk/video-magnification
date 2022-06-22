@@ -1,4 +1,5 @@
-__all__ = ["closest_power_of_2"]
+__all__ = ["closest_power_of_2", "is_power_of_2"]
+
 
 def closest_power_of_2(x: int):
     """
@@ -14,4 +15,15 @@ def closest_power_of_2(x: int):
     returns the first power of 2 bigger than `x-1`. If `x` is already a power of 2, then that
     bitshift results in `x`.
     """
-    return 1<<(x-1).bit_length()
+    return 1 << (x - 1).bit_length()
+
+
+def is_power_of_2(x: int):
+    """
+    Returns true if `x` is a power of 2.
+
+    This is in essence a single step from the Brian Kernighan's algorithm for
+    counting set bits in a number. Since integer powers of 2 only have 1 set bit,
+    and the algorithm only loops the same amount of times as the number of set bits.
+    """
+    return x & x - 1 == 0
