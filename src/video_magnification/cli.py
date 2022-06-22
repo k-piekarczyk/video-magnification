@@ -102,8 +102,8 @@ def laplace():
 
 
 def main():
-    legacy()
-    # laplace()
+    # legacy()
+    laplace()
 
 
 if __name__ == "__main__":
