@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 import numpy.typing as npt
-from typing import Optional
+from typing import Optional, Tuple
 
 from .exceptions import VideoNotOpeningException, NotAVideoFileException, ClosedVideoFileReaderException
 from .manipulation import scale_frame_down
@@ -45,30 +45,12 @@ class VideoFileReader:
         self.open = False
         return self.cap
 
-    def load_frames_into_buffer(self, scaling_factor: int = 0):
+    def get_stats(self) -> Tuple[int, int, int]:
         """
-        Loads the video into a frame buffer (scaled appropriately) and returns the buffer
+        Returns a tuple with video statistics: `(width, height, frame_count)`
         """
-        if not self.open:
-            raise ClosedVideoFileReaderException()
+        height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_count = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        frame_buffer: Optional[npt.NDArray[np.uint8]] = None
-        while self.cap.isOpened():
-            # Capture frame-by-frame
-            ret, frame = self.cap.read()
-            if ret is True:
-                scaled_frame = scale_frame_down(frame=frame, scaling_factor=scaling_factor)
-
-                if frame_buffer is None:
-                    x, y, p = scaled_frame.shape
-                    frame_buffer = np.ndarray((0, x, y, p))
-
-                frame_buffer = np.append(frame_buffer, scaled_frame[np.newaxis, ...], 0)
-
-            # Break the loop
-            else:
-                break
-
-        self.close()
-
-        return frame_buffer
+        return height, width, frame_count
