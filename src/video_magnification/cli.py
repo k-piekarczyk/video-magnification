@@ -1,8 +1,5 @@
-from typing import Optional
 import cv2
 import sys
-import numpy.typing as npt
-import numpy as np
 
 from video_magnification.utils.video import VideoFileReader, load_laplacian_pyramid_frames_to_buffers
 from video_magnification.utils.math import get_max_pyramid_depth

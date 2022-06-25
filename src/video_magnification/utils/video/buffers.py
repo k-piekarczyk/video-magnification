@@ -20,7 +20,7 @@ def load_laplacian_pyramid_frames_to_buffers(
     if depth > max_depth:
         raise Exception(f"Provided depth of {depth} is too high for the given source (max depth: {max_depth}.")
 
-    pyramid_buffers: list[Optional[npt.NDArray[np.uint8]]] = [None for _ in range(max_depth + 1)]
+    pyramid_buffers: List[Optional[npt.NDArray[np.uint8]]] = [None for _ in range(max_depth + 1)]
 
     frame_count = 0
     cap = vfr.get_cap()

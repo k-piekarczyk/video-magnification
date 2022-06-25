@@ -1,11 +1,8 @@
 import os
 import cv2
-import numpy as np
-import numpy.typing as npt
-from typing import Optional, Tuple
+from typing import Tuple
 
 from .exceptions import VideoNotOpeningException, NotAVideoFileException, ClosedVideoFileReaderException
-from .manipulation import scale_frame_down
 
 
 __all__ = ["VideoFileReader"]
