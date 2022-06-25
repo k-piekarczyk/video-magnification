@@ -8,7 +8,7 @@ from video_magnification.utils.video import VideoFileReader, prepare_for_laplace
 from video_magnification.utils.math import get_max_pyramid_depth
 
 
-__all__ = ["load_laplacian_pyramid_frames_to_buffers"]
+__all__ = ["load_laplacian_pyramid_frames_to_buffers", "merge_laplacian_pyramid_frames_into_single_buffer"]
 
 
 def load_laplacian_pyramid_frames_to_buffers(
@@ -60,3 +60,31 @@ def load_laplacian_pyramid_frames_to_buffers(
         pyramid_buffers[i] = pyramid_buffers[i][:frame_count]
 
     return pyramid_buffers, frame_count
+
+
+def merge_laplacian_pyramid_frames_into_single_buffer(
+    pyramid_buffers: List[npt.NDArray[np.uint8]], color_space: Optional[int] = None
+) -> npt.NDArray[np.uint8]:
+    actual_depth = len(pyramid_buffers)
+    frame_count, height, width, channels = pyramid_buffers[0].shape
+
+    buffer = np.ndarray((frame_count, height, width, channels), dtype=np.uint8)
+
+    for i in range(frame_count):
+        frame = pyramid_buffers[-1][i]
+
+        for j in reversed(range(actual_depth - 1)):
+            frame = cv2.pyrUp(frame)
+            diff = pyramid_buffers[j][i]
+
+            frame = diff + frame
+
+        if color_space is None:
+            buffer[i] = frame
+        else:
+            buffer[i] = cv2.cvtColor(frame, code=color_space)
+
+        # if cv2.waitKey(1) & 0xFF == ord("q"):
+        #     break
+
+    return buffer
