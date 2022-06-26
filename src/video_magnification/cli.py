@@ -46,7 +46,9 @@ def gauss():
 
     buffer, frame_count = load_frames_to_gaussian_buffer(vfr=vfr, depth=6, color_space=cv2.COLOR_BGR2YCR_CB)
 
-    print(buffer.shape)
+    buffer = buffer.astype(np.float32) / 255
+
+    print(buffer)
 
     stop = False
     while not stop:

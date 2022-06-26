@@ -92,7 +92,7 @@ def merge_laplacian_pyramid_frames_into_single_buffer(
 
 def load_frames_to_gaussian_buffer(
     vfr: VideoFileReader, depth: int, color_space: Optional[int] = None
-) -> Tuple[List[npt.NDArray[np.uint8]], int]:
+) -> Tuple[npt.NDArray[np.uint8], int]:
     _, _, max_frame_count, _ = vfr.get_stats()
 
     buffer: Optional[npt.NDArray[np.uint8]] = None
