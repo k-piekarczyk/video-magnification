@@ -44,10 +44,11 @@ class VideoFileReader:
 
     def get_stats(self) -> Tuple[int, int, int]:
         """
-        Returns a tuple with video statistics: `(width, height, frame_count)`
+        Returns a tuple with video statistics: `(width, height, frame_count, fps)`
         """
         height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_count = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = int(self.cap.get(cv2.CAP_PROP_FPS))
 
-        return height, width, frame_count
+        return height, width, frame_count, fps

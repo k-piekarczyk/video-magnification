@@ -8,7 +8,7 @@ from video_magnification.utils.video import VideoFileReader, prepare_for_laplace
 from video_magnification.utils.math import get_max_pyramid_depth
 
 
-__all__ = ["load_laplacian_pyramid_frames_to_buffers", "merge_laplacian_pyramid_frames_into_single_buffer"]
+__all__ = ["load_laplacian_pyramid_frames_to_buffers", "merge_laplacian_pyramid_frames_into_single_buffer", "load_frames_to_gaussian_buffer"]
 
 
 def load_laplacian_pyramid_frames_to_buffers(
@@ -88,3 +88,40 @@ def merge_laplacian_pyramid_frames_into_single_buffer(
         #     break
 
     return buffer
+
+
+def load_frames_to_gaussian_buffer(
+    vfr: VideoFileReader, depth: int, color_space: Optional[int] = None
+) -> Tuple[List[npt.NDArray[np.uint8]], int]:
+    _, _, max_frame_count, _ = vfr.get_stats()
+
+    buffer: Optional[npt.NDArray[np.uint8]] = None
+
+    frame_count = 0
+    cap = vfr.get_cap()
+    while cap.isOpened():
+        ret, raw_frame = cap.read()
+        raw_frame: npt.NDArray[np.uint8]  # just here for type annotation
+
+        if ret:
+            frame = raw_frame
+
+            if color_space is not None:
+                frame: npt.NDArray[np.uint8] = cv2.cvtColor(raw_frame, code=color_space)
+
+            for _ in range(depth):
+                frame = cv2.pyrDown(frame)
+            
+            if buffer is None:
+                x, y, p = frame.shape
+                buffer = np.ndarray((max_frame_count, x, y, p), dtype=np.uint8)
+            buffer[frame_count] = frame
+
+            frame_count = frame_count + 1
+        else:
+            break
+
+    buffer = buffer[:frame_count]
+        
+
+    return buffer, frame_count
