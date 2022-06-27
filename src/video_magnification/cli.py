@@ -124,7 +124,7 @@ def gauss(lower_frequency: float, higher_frequency: float, alpha: float):
 
 def main():
     # laplace()
-    gauss(lower_frequency=70/60, higher_frequency=100/60, alpha=100)
+    gauss(lower_frequency=80/60, higher_frequency=100/60, alpha=300)
 
 
 if __name__ == "__main__":
