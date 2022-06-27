@@ -2,6 +2,8 @@ import os
 import cv2
 from typing import Tuple
 
+from numpy import double
+
 from .exceptions import VideoNotOpeningException, NotAVideoFileException, ClosedVideoFileReaderException
 
 
@@ -42,7 +44,7 @@ class VideoFileReader:
         self.open = False
         return self.cap
 
-    def get_stats(self) -> Tuple[int, int, int]:
+    def get_stats(self) -> Tuple[int, int, int, float]:
         """
         Returns a tuple with video statistics: `(width, height, frame_count, fps)`
         """
