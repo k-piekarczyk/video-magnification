@@ -38,7 +38,7 @@ def laplace():
                     stop = True
                     break
     
-def gauss(lower_frequency: float, higher_frequency: float, alpha: float):
+def gauss(depth: int, lower_frequency: float, higher_frequency: float, alpha: float):
     """
     Spatial filtering with Gaussian pyramid.
 
@@ -50,12 +50,7 @@ def gauss(lower_frequency: float, higher_frequency: float, alpha: float):
 
     height, width, _, fps = vfr.get_stats()
 
-    buffer, frame_count = load_frames_to_gaussian_buffer(vfr=vfr, depth=6, color_space=cv2.COLOR_BGR2YCR_CB)
-
-    # cv2.imshow("channel 1", cv2.resize(buffer[0, :, :, 0], (width, height)))
-    # cv2.imshow("channel 2", cv2.resize(buffer[0, :, :, 1], (width, height)))
-    # cv2.imshow("channel 3", cv2.resize(buffer[0, :, :, 2], (width, height)))
-    # cv2.waitKey()
+    buffer, frame_count = load_frames_to_gaussian_buffer(vfr=vfr, depth=depth, color_space=cv2.COLOR_BGR2YCR_CB)
 
     buffer = buffer.astype(np.float32) / 255
 
@@ -89,42 +84,39 @@ def gauss(lower_frequency: float, higher_frequency: float, alpha: float):
     
     cap = VideoFileReader(filepath=filepath).get_cap()
 
-    out = cv2.VideoWriter('resources/output.mp4', cv2.VideoWriter_fourcc(*"mp4v"), fps, (width,height))
+    out_combined = cv2.VideoWriter('resources/output.mp4', cv2.VideoWriter_fourcc(*"mp4v"), fps, (width,height))
+    out_motion = cv2.VideoWriter('resources/output_motion.mp4', cv2.VideoWriter_fourcc(*"mp4v"), fps, (width,height))
     
     i = 0
     while cap.isOpened():
         ret, original = cap.read()
 
         if ret:
-            part = ((processed_buffer[i]) * 255).astype(np.uint8)
-            part[:, :, 1] = part[:, :, 1] + 127
-            part[:, :, 2] = part[:, :, 2] + 127
+            processed = ((processed_buffer[i]) * 255).astype(np.uint8)
+            processed[:, :, 1] = processed[:, :, 1] + 127
+            processed[:, :, 2] = processed[:, :, 2] + 127
 
-            frame = cv2.cvtColor(cv2.resize(part, (width, height)), cv2.COLOR_YCR_CB2BGR)
+            motion = cv2.cvtColor(cv2.resize(processed, (width, height)), cv2.COLOR_YCR_CB2BGR)
 
-            # cv2.imshow("Merged", cv2.resize(cv2.cvtColor(processed_buffer[i], cv2.COLOR_YCR_CB2BGR)[:, :, 2], (width, height)))
             cv2.imshow("Original", original)
-            cv2.imshow("Bandpassed", frame)
-            cv2.imshow("Combined", cv2.add(original, frame))
-            out.write(cv2.add(original, frame))
-
-            # cv2.imshow("processed channel 1", , (width, height)))
-            # cv2.imshow("processed channel 2", , (width, height)))
-            # cv2.imshow("processed channel 3", , (width, height)))
+            cv2.imshow("Bandpassed", motion)
+            cv2.imshow("Combined", cv2.add(original, motion))
+            out_combined.write(cv2.add(original, motion))
+            out_motion.write(motion)
 
             i += 1
             if cv2.waitKey(1) & 0xFF == ord("q"):
-                stop = True
                 break
         else:
             break
     
-    out.release()
+    out_combined.release()
+    out_motion.release()
     cv2.destroyAllWindows()
 
 def main():
     # laplace()
-    gauss(lower_frequency=80/60, higher_frequency=100/60, alpha=300)
+    gauss(3, lower_frequency=60/60, higher_frequency=100/60, alpha=50)
 
 
 if __name__ == "__main__":
