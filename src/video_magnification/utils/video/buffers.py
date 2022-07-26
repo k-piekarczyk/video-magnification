@@ -12,15 +12,18 @@ __all__ = ["load_laplacian_pyramid_frames_to_buffers", "merge_laplacian_pyramid_
 
 
 def load_laplacian_pyramid_frames_to_buffers(
-    vfr: VideoFileReader, depth: int, color_space: Optional[int] = None
+    vfr: VideoFileReader, depth: int, color_space: Optional[int] = None, single_channel: Optional[int] = None
 ) -> Tuple[List[npt.NDArray[np.uint8]], int]:
-    height, width, max_frame_count = vfr.get_stats()
+    height, width, max_frame_count, _ = vfr.get_stats()
     max_depth = get_max_pyramid_depth(height=height, width=width)
 
     if depth > max_depth:
-        raise Exception(f"Provided depth of {depth} is too high for the given source (max depth: {max_depth}.")
+        raise Exception(f"Provided depth of {depth} is too high for the given source (max depth: {max_depth})")
+    
+    if single_channel is not None and (single_channel < 0 or single_channel > 2):
+        raise Exception(f"Provided single channel index of {single_channel} is invalid (valid indexes: 0, 1 or 2)")
 
-    pyramid_buffers: List[Optional[npt.NDArray[np.uint8]]] = [None for _ in range(max_depth + 1)]
+    pyramid_buffers: List[Optional[npt.NDArray[np.uint8]]] = [None for _ in range(depth + 1)]
 
     frame_count = 0
     cap = vfr.get_cap()
@@ -33,6 +36,9 @@ def load_laplacian_pyramid_frames_to_buffers(
 
             if color_space is not None:
                 frame: npt.NDArray[np.uint8] = cv2.cvtColor(frame, code=color_space)
+            
+            if single_channel is not None:
+                frame = frame[:, :, single_channel]
 
             scaled, diff = laplace_pyramid_step(frame=frame)
             diff_list = [diff]
@@ -43,13 +49,21 @@ def load_laplacian_pyramid_frames_to_buffers(
 
             for i in range(depth):
                 if pyramid_buffers[i] is None:
-                    x, y, p = diff_list[i].shape
-                    pyramid_buffers[i] = np.ndarray((max_frame_count, x, y, p), dtype=np.uint8)
+                    if single_channel is None:
+                        x, y, p = diff_list[i].shape
+                        pyramid_buffers[i] = np.ndarray((max_frame_count, x, y, p), dtype=np.uint8)
+                    else:
+                        x, y = diff_list[i].shape
+                        pyramid_buffers[i] = np.ndarray((max_frame_count, x, y), dtype=np.uint8)
                 pyramid_buffers[i][frame_count] = diff_list[i]
 
             if pyramid_buffers[depth] is None:
-                x, y, p = scaled.shape
-                pyramid_buffers[depth] = np.ndarray((max_frame_count, x, y, p), dtype=np.uint8)
+                if single_channel is None:
+                    x, y, p = scaled.shape
+                    pyramid_buffers[depth] = np.ndarray((max_frame_count, x, y, p), dtype=np.uint8)
+                else:
+                    x, y = scaled.shape
+                    pyramid_buffers[depth] = np.ndarray((max_frame_count, x, y), dtype=np.uint8)
             pyramid_buffers[depth][frame_count] = scaled
 
             frame_count = frame_count + 1
@@ -66,9 +80,14 @@ def merge_laplacian_pyramid_frames_into_single_buffer(
     pyramid_buffers: List[npt.NDArray[np.uint8]], color_space: Optional[int] = None
 ) -> npt.NDArray[np.uint8]:
     actual_depth = len(pyramid_buffers)
-    frame_count, height, width, channels = pyramid_buffers[0].shape
+    shape = pyramid_buffers[0].shape
 
-    buffer = np.ndarray((frame_count, height, width, channels), dtype=np.uint8)
+    if len(shape) == 3:
+        frame_count, height, width = shape
+        buffer = np.ndarray((frame_count, height, width), dtype=np.uint8)
+    else:
+        frame_count, height, width, channels = shape
+        buffer = np.ndarray((frame_count, height, width, channels), dtype=np.uint8)
 
     for i in range(frame_count):
         frame = pyramid_buffers[-1][i]

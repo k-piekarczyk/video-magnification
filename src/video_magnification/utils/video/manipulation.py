@@ -59,6 +59,7 @@ def laplace_pyramid_step(frame: npt.NDArray[np.uint8]) -> Tuple[npt.NDArray[np.u
     scaled_down = cv2.pyrDown(frame)
     expanded = cv2.pyrUp(scaled_down)
 
-    diff = frame - expanded
+    # diff = frame - expanded
+    diff = cv2.subtract(frame, expanded)
 
     return (scaled_down, diff)
