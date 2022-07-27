@@ -95,7 +95,7 @@ def laplace(lower_frequency: float, higher_frequency: float, alpha: float, depth
     out_comp.release()
     cv2.destroyAllWindows()
     
-def gauss(depth: int, lower_frequency: float, higher_frequency: float, alpha: float):
+def gauss(depth: int, lower_frequency: float, higher_frequency: float, alpha: float, chroma_attenuation: Optional[float] = 1.0):
     """
     Spatial filtering with Gaussian pyramid.
 
@@ -130,8 +130,8 @@ def gauss(depth: int, lower_frequency: float, higher_frequency: float, alpha: fl
         bandpassed_ft_channel_3 = [val if present else 0 for val, present in zip(ft_channel_3, bandpass)]
 
         processed_chunk[:, 0] = np.real(ifft(bandpassed_ft_channel_1)) * alpha
-        processed_chunk[:, 1] = np.real(ifft(bandpassed_ft_channel_2)) * alpha
-        processed_chunk[:, 2] = np.real(ifft(bandpassed_ft_channel_3)) * alpha
+        processed_chunk[:, 1] = np.real(ifft(bandpassed_ft_channel_2)) * alpha * chroma_attenuation
+        processed_chunk[:, 2] = np.real(ifft(bandpassed_ft_channel_3)) * alpha * chroma_attenuation
 
         processed_chunk = np.where(processed_chunk > 1, 1, processed_chunk)
         processed_chunk = np.where(processed_chunk < 0, 0, processed_chunk)
@@ -200,7 +200,7 @@ def gauss(depth: int, lower_frequency: float, higher_frequency: float, alpha: fl
 
 def main():
     # laplace(lower_frequency=10, higher_frequency=20, alpha=10)
-    gauss(2, lower_frequency=75/60, higher_frequency=90/60, alpha=50)
+    gauss(5, lower_frequency=50/60, higher_frequency=60/60, alpha=50, chroma_attenuation=1)
 
 
 if __name__ == "__main__":
