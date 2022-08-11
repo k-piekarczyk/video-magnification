@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from typing import Optional
 from scipy.fft import fft, fftfreq, ifft
+from scipy import signal
 
 from video_magnification.utils.video import (
     VideoFileReader,
@@ -13,10 +14,10 @@ from video_magnification.utils.video import (
 from video_magnification.utils.math import get_max_pyramid_depth
 
 
-__all__ = ["laplace_fft"]
+__all__ = ["laplace_butter"]
 
 
-def laplace_fft(
+def laplace_butter(
     filepath: str,
     lower_frequency: float,
     higher_frequency: float,
@@ -24,6 +25,7 @@ def laplace_fft(
     depth: Optional[int] = None,
     sampling_rate: Optional[int] = None,
     chroma_attenuation: float = 1.0,
+    filter_order: int = 5,
 ):
     """
     Spatial filtering: Laplacian pyramid
@@ -42,8 +44,7 @@ def laplace_fft(
         vfr=vfr, depth=depth, color_space=cv2.COLOR_BGR2YCR_CB
     )
 
-    frequencies = fftfreq(frame_count, 1 / sampling_rate)
-    bandpass = (frequencies >= lower_frequency) * (frequencies <= higher_frequency)
+    sos = signal.butter(filter_order, [lower_frequency, higher_frequency], "bandpass", fs=sampling_rate, output="sos")
 
     levels = len(pyramid_buffers)
 
@@ -63,22 +64,19 @@ def laplace_fft(
             processed_chunk = np.ndarray(shape=chunk.shape, dtype=chunk.dtype)
 
             if chunk[:, 0].max() > 0:
-                ft_channel_1 = fft(chunk[:, 0])
-                bandpassed_ft_channel_1 = [val if present else 0 for val, present in zip(ft_channel_1, bandpass)]
+                bandpassed_ft_channel_1 = signal.sosfilt(sos, chunk[:, 0])
                 processed_chunk[:, 0] = np.real(ifft(bandpassed_ft_channel_1)) * alpha
             else:
                 processed_chunk[:, 0] = chunk[:, 0]
 
             if chunk[:, 1].max() > 0 and chroma_attenuation > 0:
-                ft_channel_2 = fft(chunk[:, 1])
-                bandpassed_ft_channel_2 = [val if present else 0 for val, present in zip(ft_channel_2, bandpass)]
+                bandpassed_ft_channel_2 = signal.sosfilt(sos, chunk[:, 1])
                 processed_chunk[:, 1] = np.real(ifft(bandpassed_ft_channel_2)) * alpha * chroma_attenuation
             else:
                 processed_chunk[:, 1] = chunk[:, 1]
 
             if chunk[:, 2].max() > 0 and chroma_attenuation > 0:
-                ft_channel_3 = fft(chunk[:, 2])
-                bandpassed_ft_channel_3 = [val if present else 0 for val, present in zip(ft_channel_3, bandpass)]
+                bandpassed_ft_channel_3 = signal.sosfilt(sos, chunk[:, 2])
                 processed_chunk[:, 2] = np.real(ifft(bandpassed_ft_channel_3)) * alpha * chroma_attenuation
             else:
                 processed_chunk[:, 2] = chunk[:, 2]

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from typing import Optional
-from scipy.fft import fft, fftfreq, ifft
+from scipy.fft import rfft, rfftfreq, irfft
 
 from video_magnification.utils.video import VideoFileReader, load_frames_to_gaussian_buffer
 
@@ -36,7 +36,7 @@ def gauss_fft(
 
     n, h, w, c = buffer.shape
 
-    frequencies = fftfreq(frame_count, 1 / sampling_rate)
+    frequencies = rfftfreq(frame_count, 1 / sampling_rate)
     bandpass = (frequencies >= lower_frequency) * (frequencies <= higher_frequency)
 
     processed_buffer = np.ndarray(shape=(n, h, w, c), dtype=buffer.dtype)
@@ -44,17 +44,17 @@ def gauss_fft(
         chunk = buffer[:, x, y, :]
         processed_chunk = np.ndarray(shape=chunk.shape, dtype=chunk.dtype)
 
-        ft_channel_1 = fft(chunk[:, 0])
-        ft_channel_2 = fft(chunk[:, 1])
-        ft_channel_3 = fft(chunk[:, 2])
+        ft_channel_1 = rfft(chunk[:, 0])
+        ft_channel_2 = rfft(chunk[:, 1])
+        ft_channel_3 = rfft(chunk[:, 2])
 
         bandpassed_ft_channel_1 = [val if present else 0 for val, present in zip(ft_channel_1, bandpass)]
         bandpassed_ft_channel_2 = [val if present else 0 for val, present in zip(ft_channel_2, bandpass)]
         bandpassed_ft_channel_3 = [val if present else 0 for val, present in zip(ft_channel_3, bandpass)]
 
-        processed_chunk[:, 0] = np.real(ifft(bandpassed_ft_channel_1)) * alpha
-        processed_chunk[:, 1] = np.real(ifft(bandpassed_ft_channel_2)) * alpha * chroma_attenuation
-        processed_chunk[:, 2] = np.real(ifft(bandpassed_ft_channel_3)) * alpha * chroma_attenuation
+        processed_chunk[:, 0] = np.real(irfft(bandpassed_ft_channel_1)) * alpha
+        processed_chunk[:, 1] = np.real(irfft(bandpassed_ft_channel_2)) * alpha * chroma_attenuation
+        processed_chunk[:, 2] = np.real(irfft(bandpassed_ft_channel_3)) * alpha * chroma_attenuation
 
         processed_chunk = np.where(processed_chunk > 1, 1, processed_chunk)
         processed_chunk = np.where(processed_chunk < 0, 0, processed_chunk)
