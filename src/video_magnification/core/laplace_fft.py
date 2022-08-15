@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 
 from typing import Optional
@@ -88,12 +89,13 @@ def laplace_fft(
 
             processed_buffer[:, x, y, :] = processed_chunk
 
+
         processed = ((processed_buffer) * 255).astype(np.uint8)
         processed_pyramid_buffers.append(processed)
 
-    merged_buffer = merge_laplacian_pyramid_frames_into_single_buffer(pyramid_buffers=processed_pyramid_buffers, ignore_last_level=True)[
-        :, :height, :width, :
-    ]
+    merged_buffer = merge_laplacian_pyramid_frames_into_single_buffer(
+        pyramid_buffers=processed_pyramid_buffers, ignore_last_level=True
+    )[:, :height, :width, :]
 
     cap = VideoFileReader(filepath=filepath).get_cap()
     out_combined = cv2.VideoWriter("resources/result.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height))
