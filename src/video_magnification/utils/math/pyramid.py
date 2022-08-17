@@ -4,7 +4,7 @@ from .powers import closest_power_of_2, is_power_of_2
 __all__ = ["get_max_pyramid_depth"]
 
 
-def get_max_pyramid_depth(height: int, width: int, min_unit_size: int = 8) -> int:
+def get_max_pyramid_depth(height: int, width: int, min_unit_size: int = 4) -> int:
     """
     Returns the maximum depth of a pyramid for a given height and width (adjusts them to the closes power of 2)
     """
