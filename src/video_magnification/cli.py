@@ -11,11 +11,11 @@ def run(filepath: str):
     # gauss_fft(filepath, 1, lower_frequency=75/60, higher_frequency=90/60, alpha=50)
 
     # face
-    laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=100, lambda_c=20)
+    # laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=100, lambda_c=20)
     # gauss_fft(filepath, 5, lower_frequency=50/60, higher_frequency=60/60, alpha=100)
 
     # wrist
-    # laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=50)
+    laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=50, lambda_c=3)
     # gauss_fft(filepath, 0, lower_frequency=50/60, higher_frequency=60/60, alpha=50)
 
     # guitar E
