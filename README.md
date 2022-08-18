@@ -2,4 +2,4 @@
 
 Readme under construction
 
-Heavily inspired by this publication: https://people.csail.mit.edu/mrub/evm/
+Heavily inspired by this publication: [https://people.csail.mit.edu/mrub/evm/](https://people.csail.mit.edu/mrub/evm/)
