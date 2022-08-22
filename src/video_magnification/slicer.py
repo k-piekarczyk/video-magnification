@@ -89,7 +89,7 @@ def run():
     filepath = sys.argv[1]
     output = sys.argv[2]
     # slicer(filepath=filepath, output=output)
-    slicer(filepath=filepath, output=output, selected=[(363, 87), (363, 254)])
+    slicer(filepath=filepath, output=output, selected=[(237, 45), (237, 577)])
 
 if __name__ == "__main__":
     filepath = sys.argv[1]

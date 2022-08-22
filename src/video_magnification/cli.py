@@ -12,17 +12,24 @@ def run(filepath: str):
 
     # face
     # laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=100, lambda_c=20)
-    # gauss_fft(filepath, 5, lower_frequency=50/60, higher_frequency=60/60, alpha=100)
+    # gauss_fft(filepath, 4, lower_frequency=50/60, higher_frequency=60/60, alpha=100)
 
     # wrist
-    laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=50, lambda_c=3)
+    # laplace_fft(filepath, lower_frequency=50/60, higher_frequency=60/60, alpha=50, lambda_c=3)
     # gauss_fft(filepath, 0, lower_frequency=50/60, higher_frequency=60/60, alpha=50)
 
     # guitar E
-    # laplace_fft(filepath, lower_frequency=72, higher_frequency=92, alpha=50, lambda_c=10, chroma_attenuation=0, sampling_rate=600)
+    # laplace_fft(filepath, lower_frequency=72, higher_frequency=92, alpha=50, lambda_c=2, chroma_attenuation=0, sampling_rate=600)
+    # gauss_fft(filepath, 1, lower_frequency=72, higher_frequency=92, alpha=50, chroma_attenuation=0, sampling_rate=600)
 
     # Guitar A
-    # laplace_fft(filepath, lower_frequency=100, higher_frequency=120, alpha=50, chroma_attenuation=1, sampling_rate=600)
+    # laplace_fft(filepath, lower_frequency=100, higher_frequency=120, alpha=50, chroma_attenuation=0, sampling_rate=600, lambda_c=2)
+    # gauss_fft(filepath, 1, lower_frequency=100, higher_frequency=120, alpha=50, chroma_attenuation=0, sampling_rate=600)
+
+    # Baby
+    # laplace_fft(filepath, lower_frequency=0.5, higher_frequency=1, alpha=50, chroma_attenuation=1, lambda_c=10)
+    # gauss_fft(filepath, 2, lower_frequency=0.5, higher_frequency=1, alpha=50, chroma_attenuation=1)
+
 
     # gauss_fft(
     #     filepath,
@@ -36,7 +43,7 @@ def run(filepath: str):
     # )
 
     # Bridge 1
-    # laplace_fft(filepath, lower_frequency=.5, higher_frequency=2, alpha=50)
+    laplace_fft(filepath, lower_frequency=.1, higher_frequency=3, alpha=50, lambda_c=10)
     elapsed = time.time() - start_time
 
     print(f"This took {elapsed} seconds!")
